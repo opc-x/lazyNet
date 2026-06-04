@@ -12,6 +12,8 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded'
 import {
   Box,
   List,
@@ -20,6 +22,12 @@ import {
   Paper,
   SvgIcon,
   ThemeProvider,
+} from '@mui/material'
+import {
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -40,7 +48,7 @@ import { WindowControls } from '@/components/layout/window-controller'
 import { useI18n } from '@/hooks/use-i18n'
 import { useVerge } from '@/hooks/use-verge'
 import { useWindowDecorations } from '@/hooks/use-window'
-import { useThemeMode } from '@/services/states'
+import { useThemeMode, useLazyMode, useSetLazyMode } from '@/services/states'
 import getSystem from '@/utils/get-system'
 
 import {
@@ -111,6 +119,8 @@ const OS = getSystem()
 
 const Layout = () => {
   const mode = useThemeMode()
+  const lazyMode = useLazyMode()
+  const setLazyMode = useSetLazyMode()
   const isDark = mode !== 'light'
   const { t } = useTranslation()
   const { theme } = useCustomTheme()
@@ -169,6 +179,13 @@ const Layout = () => {
     onOptimisticUpdate: handleMenuOrderOptimisticUpdate,
     onPersist: handleMenuOrderPersist,
   })
+
+  const effectiveMenuOrder = useMemo(() => {
+    if (lazyMode) {
+      return ['/']
+    }
+    return menuOrder
+  }, [lazyMode, menuOrder])
 
   const handleMenuContextMenu = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
@@ -364,12 +381,12 @@ const Layout = () => {
                 collisionDetection={closestCenter}
                 onDragEnd={handleMenuDragEnd}
               >
-                <SortableContext items={menuOrder}>
+                <SortableContext items={effectiveMenuOrder}>
                   <List
                     className="the-menu"
                     onContextMenu={handleMenuContextMenu}
                   >
-                    {menuOrder.map((path) => {
+                    {effectiveMenuOrder.map((path) => {
                       const item = navItemMap.get(path)
                       if (!item) {
                         return null
@@ -387,7 +404,7 @@ const Layout = () => {
               </DndContext>
             ) : (
               <List className="the-menu" onContextMenu={handleMenuContextMenu}>
-                {menuOrder.map((path) => {
+                {effectiveMenuOrder.map((path) => {
                   const item = navItemMap.get(path)
                   if (!item) {
                     return null
@@ -398,6 +415,82 @@ const Layout = () => {
                     </LayoutItem>
                   )
                 })}
+                {lazyMode ? (
+                  <ListItem
+                    sx={{
+                      py: 0.5,
+                      maxWidth: 250,
+                      mx: 'auto',
+                      padding: '4px 0px',
+                    }}
+                  >
+                    <ListItemButton
+                      sx={{
+                        borderRadius: 2,
+                        marginLeft: 1.25,
+                        paddingLeft: 1,
+                        paddingRight: 1,
+                        marginRight: 1.25,
+                        cursor: 'pointer',
+                        '& .MuiListItemText-primary': {
+                          color: 'text.secondary',
+                          fontWeight: '600',
+                          fontSize: '0.875rem',
+                        },
+                      }}
+                      onClick={() => setLazyMode(false)}
+                    >
+                      <ListItemIcon
+                        sx={{ color: 'text.secondary', marginLeft: '6px' }}
+                      >
+                        <SettingsRoundedIcon />
+                      </ListItemIcon>
+                      <ListItemText
+                        sx={{ textAlign: 'center', marginLeft: '-35px' }}
+                        primary={navCollapsed ? '' : '高级模式'}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                ) : (
+                  <ListItem
+                    sx={{
+                      py: 0.5,
+                      maxWidth: 250,
+                      mx: 'auto',
+                      padding: '4px 0px',
+                    }}
+                  >
+                    <ListItemButton
+                      sx={{
+                        borderRadius: 2,
+                        marginLeft: 1.25,
+                        paddingLeft: 1,
+                        paddingRight: 1,
+                        marginRight: 1.25,
+                        cursor: 'pointer',
+                        '& .MuiListItemText-primary': {
+                          color: 'primary.main',
+                          fontWeight: '700',
+                          fontSize: '0.875rem',
+                        },
+                      }}
+                      onClick={() => {
+                        setLazyMode(true)
+                        navigate('/')
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{ color: 'primary.main', marginLeft: '6px' }}
+                      >
+                        <AutoAwesomeRoundedIcon />
+                      </ListItemIcon>
+                      <ListItemText
+                        sx={{ textAlign: 'center', marginLeft: '-35px' }}
+                        primary={navCollapsed ? '' : '智能模式'}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                )}
               </List>
             )}
 

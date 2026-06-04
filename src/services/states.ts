@@ -12,6 +12,10 @@ const [LoadingCacheProvider, useLoadingCache, useSetLoadingCache] =
 const [UpdateStateProvider, useUpdateState, useSetUpdateState] =
   createContextState<boolean>(false)
 
+// save lazy mode state (default to true)
+const [LazyModeProvider, useLazyMode, useSetLazyMode] =
+  createContextState<boolean>(true)
+
 export {
   ThemeModeProvider,
   useThemeMode,
@@ -22,4 +26,7 @@ export {
   UpdateStateProvider,
   useUpdateState,
   useSetUpdateState,
+  LazyModeProvider,
+  useLazyMode,
+  useSetLazyMode,
 }

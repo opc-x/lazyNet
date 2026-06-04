@@ -23,6 +23,7 @@ import {
   LoadingCacheProvider,
   ThemeModeProvider,
   UpdateStateProvider,
+  LazyModeProvider,
 } from './services/states'
 import { disableWebViewShortcuts } from './utils/disable-webview-shortcuts'
 
@@ -44,6 +45,7 @@ const initializeApp = (initialThemeMode: 'light' | 'dark') => {
     <ThemeModeProvider key="theme" initialState={initialThemeMode} />,
     <LoadingCacheProvider key="loading" />,
     <UpdateStateProvider key="update" />,
+    <LazyModeProvider key="lazy" />,
   ]
 
   const root = createRoot(container)

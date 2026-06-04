@@ -31,10 +31,12 @@ import { CurrentProxyCard } from '@/components/home/current-proxy-card'
 import { EnhancedCard } from '@/components/home/enhanced-card'
 import { EnhancedTrafficStats } from '@/components/home/enhanced-traffic-stats'
 import { HomeProfileCard } from '@/components/home/home-profile-card'
+import { LazyDashboard } from '@/components/home/LazyDashboard'
 import { ProxyTunCard } from '@/components/home/proxy-tun-card'
 import { useProfiles } from '@/hooks/use-profiles'
 import { useVerge } from '@/hooks/use-verge'
 import { entry_lightweight_mode, openWebUrl } from '@/services/cmds'
+import { useLazyMode } from '@/services/states'
 
 const LazyTestCard = lazy(() =>
   import('@/components/home/test-card').then((module) => ({
@@ -212,6 +214,7 @@ const HomePage = () => {
   const { t } = useTranslation()
   const { verge } = useVerge()
   const { current, mutateProfiles } = useProfiles()
+  const lazyMode = useLazyMode()
 
   // 设置弹窗的状态
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -362,6 +365,10 @@ const HomePage = () => {
     () => `${serializeCardFlags(effectiveHomeCards)}:${settingsOpen ? 1 : 0}`,
     [effectiveHomeCards, settingsOpen],
   )
+  if (lazyMode) {
+    return <LazyDashboard />
+  }
+
   return (
     <BasePage
       title={t('home.page.title')}
